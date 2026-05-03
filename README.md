@@ -1,5 +1,4 @@
-# AI---SQL-Data-Analyst-Agent
-# 📊 AI SQL Data Analyst Agent
+# 📊AI---SQL-Data-Analyst-Agent
 
 ## 🚀 Project Overview
 
