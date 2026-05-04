@@ -22,6 +22,13 @@ if not api_key:
 client = Groq(api_key=api_key)
 
 # -----------------------
+# FUNCTION: CLEAN SQL
+# -----------------------
+def clean_sql(query):
+    query = query.replace("```sql", "").replace("```", "").strip()
+    return query
+
+# -----------------------
 # FILE UPLOAD
 # -----------------------
 uploaded_file = st.file_uploader("Upload CSV file", type=["csv"])
@@ -50,19 +57,22 @@ if uploaded_file:
         with st.spinner("Generating SQL... 🤖"):
 
             prompt = f"""
-            You are an expert SQL analyst.
+You are an expert SQL analyst.
 
-            Table name: data
-            Columns: {list(df.columns)}
+Table name: data
+Columns: {list(df.columns)}
 
-            Rules:
-            - Use only these columns
-            - Use SQLite syntax
-            - If revenue needed, use price * quantity
-            - Return ONLY SQL query (no explanation)
+STRICT RULES:
+- Use only these columns
+- Use SQLite syntax
+-plot bar graph
+- Return ONLY plain SQL query
+- Do NOT use markdown
+- Do NOT include ``` or ```sql
+- Do NOT explain anything
 
-            Question: {question}
-            """
+Question: {question}
+"""
 
             try:
                 response = client.chat.completions.create(
@@ -70,7 +80,10 @@ if uploaded_file:
                     messages=[{"role": "user", "content": prompt}]
                 )
 
-                sql_query = response.choices[0].message.content.strip()
+                raw_sql = response.choices[0].message.content.strip()
+
+                # 🔥 CLEAN SQL HERE
+                sql_query = clean_sql(raw_sql)
 
                 st.subheader("🧠 Generated SQL")
                 st.code(sql_query, language="sql")
@@ -99,3 +112,4 @@ if uploaded_file:
 
             except Exception as e:
                 st.error(f"❌ Error: {e}")
+
